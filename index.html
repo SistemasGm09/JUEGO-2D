@@ -1,118 +1,21 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-let player = { x: 200, y: 200, size: 20, vida: 100, nivel: 1 };
-let enemigos = [];
-let teclas = {};
-let poderes = { fuego: 3, hielo: 2 };
-
-// 🎮 Controles de teclado
-document.addEventListener("keydown", (e) => {
-  teclas[e.key] = true;
-});
-document.addEventListener("keyup", (e) => {
-  teclas[e.key] = false;
-});
-
-// 📱 Controles táctiles
-document.querySelectorAll(".btn").forEach(btn => {
-  btn.addEventListener("touchstart", () => {
-    let key = btn.getAttribute("data-key");
-    teclas[key] = true;
-  });
-  btn.addEventListener("touchend", () => {
-    let key = btn.getAttribute("data-key");
-    teclas[key] = false;
-  });
-});
-
-// Poderes
-document.getElementById("fire").addEventListener("click", usarFuego);
-document.getElementById("ice").addEventListener("click", usarHielo);
-
-function moverJugador() {
-  if (teclas["ArrowUp"] && player.y > 0) player.y -= 5;
-  if (teclas["ArrowDown"] && player.y < canvas.height - player.size) player.y += 5;
-  if (teclas["ArrowLeft"] && player.x > 0) player.x -= 5;
-  if (teclas["ArrowRight"] && player.x < canvas.width - player.size) player.x += 5;
-}
-
-function usarFuego() {
-  if (poderes.fuego > 0) {
-    enemigos = []; // elimina todos los enemigos
-    poderes.fuego--;
-  }
-}
-
-function usarHielo() {
-  if (poderes.hielo > 0) {
-    enemigos.forEach(e => e.size += 10); // los congela (más grandes = más lentos)
-    poderes.hielo--;
-  }
-}
-
-function crearEnemigo() {
-  if (Math.random() < 0.02 * player.nivel) {
-    let x = Math.random() * (canvas.width - 20);
-    let y = Math.random() * (canvas.height - 20);
-    enemigos.push({ x, y, size: 20, dx: (Math.random() - 0.5) * 2, dy: (Math.random() - 0.5) * 2 });
-  }
-}
-
-function moverEnemigos() {
-  enemigos.forEach(e => {
-    e.x += e.dx;
-    e.y += e.dy;
-
-    if (e.x < 0 || e.x > canvas.width - e.size) e.dx *= -1;
-    if (e.y < 0 || e.y > canvas.height - e.size) e.dy *= -1;
-  });
-}
-
-function dibujar() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Jugador
-  ctx.fillStyle = "lime";
-  ctx.fillRect(player.x, player.y, player.size, player.size);
-
-  // Enemigos
-  ctx.fillStyle = "red";
-  enemigos.forEach(e => {
-    ctx.fillRect(e.x, e.y, e.size, e.size);
-
-    // Colisión
-    if (
-      player.x < e.x + e.size &&
-      player.x + player.size > e.x &&
-      player.y < e.y + e.size &&
-      player.y + player.size > e.y
-    ) {
-      player.vida -= 1;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Juego Arcade</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
     }
-  });
-
-  // HUD
-  ctx.fillStyle = "white";
-  ctx.font = "16px Arial";
-  ctx.fillText(`❤️ Vida: ${player.vida}`, 10, 20);
-  ctx.fillText(`⭐ Nivel: ${player.nivel}`, 10, 40);
-  ctx.fillText(`🔥 Fuego: ${poderes.fuego}`, 10, 60);
-  ctx.fillText(`❄️ Hielo: ${poderes.hielo}`, 10, 80);
-
-  if (player.vida <= 0) {
-    ctx.fillStyle = "yellow";
-    ctx.font = "30px Arial";
-    ctx.fillText("¡GAME OVER!", 120, 200);
-    return false;
-  }
-  return true;
-}
-
-function loop() {
-  moverJugador();
-  moverEnemigos();
-  crearEnemigo();
-  if (dibujar()) requestAnimationFrame(loop);
-}
-loop();
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <script src="game.js"></script>
+</body>
+</html>
