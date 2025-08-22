@@ -2,24 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Juego Arcade</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Niveles</title>
 </head>
 <body>
-  <script src="game.js"></script>
+  <h1>Juego con Niveles, Vida y Poderes</h1>
+  <canvas id="gameCanvas" width="400" height="400" style="border:1px solid black;"></canvas>
+
+  <!-- Controles para celular -->
+  <div style="margin-top:10px;">
+    <button onclick="movePlayer('up')">⬆️</button><br>
+    <button onclick="movePlayer('left')">⬅️</button>
+    <button onclick="movePlayer('down')">⬇️</button>
+    <button onclick="movePlayer('right')">➡️</button>
+  </div>
+  <div style="margin-top:10px;">
+    <button onclick="usePower('fire')">🔥 Fuego</button>
+    <button onclick="usePower('ice')">❄️ Hielo</button>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
-
-
 
