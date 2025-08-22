@@ -1,97 +1,108 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-let player = { x: 200, y: 200, size: 20, vida: 100, nivel: 1, poder: 3 };
-let enemigos = [];
-let teclas = {};
+// Jugador
+let player = { x: 50, y: 50, size: 20, vida: 3, nivel: 1, poderes: ["fire", "ice"] };
 
-// 🎮 Controles de teclado
-document.addEventListener("keydown", (e) => {
-  teclas[e.key] = true;
-  if (e.key === " ") usarPoder();
-});
-document.addEventListener("keyup", (e) => {
-  teclas[e.key] = false;
-});
+// Enemigos
+let enemies = [{ x: 200, y: 200, size: 20 }];
 
-// 📱 Controles táctiles
-document.querySelectorAll(".btn").forEach(btn => {
-  btn.addEventListener("touchstart", () => {
-    let key = btn.getAttribute("data-key");
-    teclas[key] = true;
-    if (key === "Space") usarPoder();
-  });
-  btn.addEventListener("touchend", () => {
-    let key = btn.getAttribute("data-key");
-    teclas[key] = false;
-  });
-});
-
-function moverJugador() {
-  if (teclas["ArrowUp"] && player.y > 0) player.y -= 5;
-  if (teclas["ArrowDown"] && player.y < canvas.height - player.size) player.y += 5;
-  if (teclas["ArrowLeft"] && player.x > 0) player.x -= 5;
-  if (teclas["ArrowRight"] && player.x < canvas.width - player.size) player.x += 5;
-}
-
-function usarPoder() {
-  if (player.poder > 0) {
-    enemigos = []; // elimina todos los enemigos en pantalla
-    player.poder--;
-  }
-}
-
-function crearEnemigo() {
-  if (Math.random() < 0.05 * player.nivel) {
-    let x = Math.random() * (canvas.width - 20);
-    let y = Math.random() * (canvas.height - 20);
-    enemigos.push({ x, y, size: 20 });
-  }
-}
-
-function dibujar() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Jugador
-  ctx.fillStyle = "lime";
+// Dibujar jugador
+function drawPlayer() {
+  ctx.fillStyle = "blue";
   ctx.fillRect(player.x, player.y, player.size, player.size);
+}
 
-  // Enemigos
+// Dibujar enemigos
+function drawEnemies() {
   ctx.fillStyle = "red";
-  enemigos.forEach(e => {
-    ctx.fillRect(e.x, e.y, e.size, e.size);
+  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.size, e.size));
+}
 
-    // Colisión
+// Mover jugador
+function movePlayer(direction) {
+  if (direction === "up") player.y -= 10;
+  if (direction === "down") player.y += 10;
+  if (direction === "left") player.x -= 10;
+  if (direction === "right") player.x += 10;
+  checkCollisions();
+  drawGame();
+}
+
+// Usar poderes
+function usePower(type) {
+  if (!player.poderes.includes(type)) return;
+  ctx.fillStyle = type === "fire" ? "orange" : "cyan";
+  ctx.beginPath();
+  ctx.arc(player.x + 10, player.y + 10, 40, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eliminar enemigos cercanos
+  enemies = enemies.filter(e => {
+    let dx = e.x - player.x;
+    let dy = e.y - player.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    return dist > 40;
+  });
+
+  if (enemies.length === 0) nextLevel();
+}
+
+// Colisiones
+function checkCollisions() {
+  enemies.forEach(e => {
     if (
       player.x < e.x + e.size &&
       player.x + player.size > e.x &&
       player.y < e.y + e.size &&
       player.y + player.size > e.y
     ) {
-      player.vida -= 1;
+      player.vida--;
+      alert("¡Perdiste una vida! Vidas: " + player.vida);
+      if (player.vida <= 0) {
+        alert("¡Game Over!");
+        resetGame();
+      }
     }
   });
+}
 
-  // HUD
-  ctx.fillStyle = "white";
-  ctx.font = "16px Arial";
-  ctx.fillText(`Vida: ${player.vida}`, 10, 20);
-  ctx.fillText(`Nivel: ${player.nivel}`, 10, 40);
-  ctx.fillText(`Poderes: ${player.poder}`, 10, 60);
-
-  if (player.vida <= 0) {
-    ctx.fillStyle = "yellow";
-    ctx.font = "30px Arial";
-    ctx.fillText("¡GAME OVER!", 120, 200);
-    return false;
+// Siguiente nivel
+function nextLevel() {
+  player.nivel++;
+  alert("Nivel " + player.nivel);
+  enemies = [];
+  for (let i = 0; i < player.nivel; i++) {
+    enemies.push({ x: Math.random() * 350, y: Math.random() * 350, size: 20 });
   }
-  return true;
+  drawGame();
 }
 
-function loop() {
-  moverJugador();
-  crearEnemigo();
-  if (dibujar()) requestAnimationFrame(loop);
+// Reiniciar juego
+function resetGame() {
+  player.x = 50;
+  player.y = 50;
+  player.vida = 3;
+  player.nivel = 1;
+  enemies = [{ x: 200, y: 200, size: 20 }];
+  drawGame();
 }
-loop();
 
+// Dibujar todo
+function drawGame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPlayer();
+  drawEnemies();
+}
+
+// Controles con teclado (PC)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp") movePlayer("up");
+  if (e.key === "ArrowDown") movePlayer("down");
+  if (e.key === "ArrowLeft") movePlayer("left");
+  if (e.key === "ArrowRight") movePlayer("right");
+  if (e.key === "f") usePower("fire");
+  if (e.key === "i") usePower("ice");
+});
+
+drawGame();
