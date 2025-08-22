@@ -1,146 +1,109 @@
-class MainScene extends Phaser.Scene {
-  constructor() {
-    super('MainScene');
-  }
 
-  preload() {
-    this.load.image('background', 'https://labs.phaser.io/assets/skies/space3.png');
-    this.load.image('player', 'https://labs.phaser.io/assets/sprites/player.png');
-    this.load.image('enemy', 'https://labs.phaser.io/assets/sprites/ufo.png');
-    this.load.image('bullet', 'https://labs.phaser.io/assets/sprites/bullets/bullet5.png');
-    this.load.image('laser', 'https://labs.phaser.io/assets/sprites/bullets/bullet11.png');
-  }
+   const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-  create() {
-    // Fondo
-    this.background = this.add.tileSprite(400, 300, 800, 600, 'background');
+// Jugador
+let player = { x: 50, y: 50, size: 20, vida: 3, nivel: 1, poderes: ["fire", "ice"] };
 
-    // Jugador
-    this.player = this.physics.add.sprite(400, 550, 'player').setCollideWorldBounds(true);
-    this.player.setScale(1.5); // nave más grande
+// Enemigos
+let enemies = [{ x: 200, y: 200, size: 20 }];
 
-    // Controles
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-    // Balas
-    this.bullets = this.physics.add.group();
-
-    // Enemigos
-    this.enemies = this.physics.add.group();
-
-    // Variables del juego
-    this.lives = 3;
-    this.level = 1;
-    this.score = 0;
-    this.power = 'normal'; // poderes: normal, triple, laser
-
-    // Texto
-    this.scoreText = this.add.text(10, 10, 'Puntaje: 0', { fontSize: '20px', fill: '#fff' });
-    this.livesText = this.add.text(10, 40, 'Vidas: 3', { fontSize: '20px', fill: '#fff' });
-    this.levelText = this.add.text(10, 70, 'Nivel: 1', { fontSize: '20px', fill: '#fff' });
-    this.powerText = this.add.text(10, 100, 'Poder: Normal', { fontSize: '20px', fill: '#fff' });
-
-    // Generar enemigos
-    this.enemyTimer = this.time.addEvent({
-      delay: 1000,
-      loop: true,
-      callback: () => this.spawnEnemy()
-    });
-
-    // Colisiones
-    this.physics.add.overlap(this.bullets, this.enemies, this.hitEnemy, null, this);
-    this.physics.add.overlap(this.player, this.enemies, this.playerHit, null, this);
-  }
-
-  spawnEnemy() {
-    let x = Phaser.Math.Between(50, 750);
-    let enemy = this.enemies.create(x, 0, 'enemy');
-    enemy.setVelocityY(50 + this.level * 20); // más rápido con nivel
-  }
-
-  shootBullet() {
-    if (this.power === 'normal') {
-      let bullet = this.bullets.create(this.player.x, this.player.y - 20, 'bullet');
-      bullet.setVelocityY(-300);
-    } else if (this.power === 'triple') {
-      let bullet1 = this.bullets.create(this.player.x, this.player.y - 20, 'bullet');
-      let bullet2 = this.bullets.create(this.player.x - 15, this.player.y - 20, 'bullet');
-      let bullet3 = this.bullets.create(this.player.x + 15, this.player.y - 20, 'bullet');
-      bullet1.setVelocityY(-300);
-      bullet2.setVelocity(-100, -300);
-      bullet3.setVelocity(100, -300);
-    } else if (this.power === 'laser') {
-      let laser = this.bullets.create(this.player.x, this.player.y - 20, 'laser');
-      laser.setVelocityY(-500);
-      laser.setScale(1.5);
-    }
-  }
-
-  hitEnemy(bullet, enemy) {
-    bullet.destroy();
-    enemy.destroy();
-    this.score += 10;
-    this.scoreText.setText('Puntaje: ' + this.score);
-
-    // Subir de nivel cada 100 puntos
-    if (this.score % 100 === 0) {
-      this.level++;
-      this.levelText.setText('Nivel: ' + this.level);
-      this.enemyTimer.delay = Math.max(300, 1000 - this.level * 100);
-
-      // Cambiar poder en ciertos niveles
-      if (this.level === 2) {
-        this.power = 'triple';
-        this.powerText.setText('Poder: Triple');
-      } else if (this.level === 4) {
-        this.power = 'laser';
-        this.powerText.setText('Poder: Láser');
-      }
-    }
-  }
-
-  playerHit(player, enemy) {
-    enemy.destroy();
-    this.lives--;
-    this.livesText.setText('Vidas: ' + this.lives);
-
-    if (this.lives <= 0) {
-      this.scene.restart(); // reiniciar juego
-      this.lives = 3;
-      this.level = 1;
-      this.score = 0;
-      this.power = 'normal';
-    }
-  }
-
-  update() {
-    // Fondo en movimiento
-    this.background.tilePositionY -= 2;
-
-    // Movimiento jugador
-    if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-200);
-    } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(200);
-    } else {
-      this.player.setVelocityX(0);
-    }
-
-    // Disparo
-    if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-      this.shootBullet();
-    }
-  }
+// Dibujar jugador
+function drawPlayer() {
+  ctx.fillStyle = "blue";
+  ctx.fillRect(player.x, player.y, player.size, player.size);
 }
 
-// Configuración del juego
-new Phaser.Game({
-  type: Phaser.AUTO,
-  width: window.innerWidth,
-  height: window.innerHeight,
-  backgroundColor: '#000000',
-  physics: { default: 'arcade' },
-  scene: MainScene
+// Dibujar enemigos
+function drawEnemies() {
+  ctx.fillStyle = "red";
+  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.size, e.size));
+}
+
+// Mover jugador
+function movePlayer(direction) {
+  if (direction === "up") player.y -= 10;
+  if (direction === "down") player.y += 10;
+  if (direction === "left") player.x -= 10;
+  if (direction === "right") player.x += 10;
+  checkCollisions();
+  drawGame();
+}
+
+// Usar poderes
+function usePower(type) {
+  if (!player.poderes.includes(type)) return;
+  ctx.fillStyle = type === "fire" ? "orange" : "cyan";
+  ctx.beginPath();
+  ctx.arc(player.x + 10, player.y + 10, 40, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eliminar enemigos cercanos
+  enemies = enemies.filter(e => {
+    let dx = e.x - player.x;
+    let dy = e.y - player.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    return dist > 40;
+  });
+
+  if (enemies.length === 0) nextLevel();
+}
+
+// Colisiones
+function checkCollisions() {
+  enemies.forEach(e => {
+    if (
+      player.x < e.x + e.size &&
+      player.x + player.size > e.x &&
+      player.y < e.y + e.size &&
+      player.y + player.size > e.y
+    ) {
+      player.vida--;
+      alert("¡Perdiste una vida! Vidas: " + player.vida);
+      if (player.vida <= 0) {
+        alert("¡Game Over!");
+        resetGame();
+      }
+    }
+  });
+}
+
+// Siguiente nivel
+function nextLevel() {
+  player.nivel++;
+  alert("Nivel " + player.nivel);
+  enemies = [];
+  for (let i = 0; i < player.nivel; i++) {
+    enemies.push({ x: Math.random() * 350, y: Math.random() * 350, size: 20 });
+  }
+  drawGame();
+}
+
+// Reiniciar juego
+function resetGame() {
+  player.x = 50;
+  player.y = 50;
+  player.vida = 3;
+  player.nivel = 1;
+  enemies = [{ x: 200, y: 200, size: 20 }];
+  drawGame();
+}
+
+// Dibujar todo
+function drawGame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPlayer();
+  drawEnemies();
+}
+
+// Controles con teclado (PC)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp") movePlayer("up");
+  if (e.key === "ArrowDown") movePlayer("down");
+  if (e.key === "ArrowLeft") movePlayer("left");
+  if (e.key === "ArrowRight") movePlayer("right");
+  if (e.key === "f") usePower("fire");
+  if (e.key === "i") usePower("ice");
 });
 
+drawGame();
