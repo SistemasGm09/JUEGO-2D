@@ -51,7 +51,7 @@
   </style>
 </head>
 <body>
-  <!-- Aquí va tu juego -->
+  <!-- Tu juego -->
   <canvas id="gameCanvas" width="400" height="400"></canvas>
 
   <!-- Botones táctiles -->
@@ -66,14 +66,11 @@
     </div>
   </div>
 
+  <!-- Tu archivo de juego -->
+  <script src="script.js"></script>  <!-- 👈 Asegúrate que se llame igual -->
+  
+  <!-- Script para botones -->
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    // --- aquí sigue todo tu código del juego ---
-    // (esto no se toca, solo agregamos abajo los controles)
-
-    // Simular teclas con botones
     const buttons = {
       up: document.getElementById("up"),
       down: document.getElementById("down"),
@@ -90,7 +87,7 @@
     buttons.left.addEventListener("touchstart", () => simulateKey("ArrowLeft"));
     buttons.right.addEventListener("touchstart", () => simulateKey("ArrowRight"));
 
-    // También con clics por si acaso
+    // También con clics (PC)
     buttons.up.addEventListener("click", () => simulateKey("ArrowUp"));
     buttons.down.addEventListener("click", () => simulateKey("ArrowDown"));
     buttons.left.addEventListener("click", () => simulateKey("ArrowLeft"));
@@ -98,6 +95,7 @@
   </script>
 </body>
 </html>
+
 
 
 
