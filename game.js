@@ -33,7 +33,7 @@ class MainScene extends Phaser.Scene {
     this.bullets = this.physics.add.group();
     this.enemies = this.physics.add.group();
 
-    // Variables
+    // Variables del juego
     this.lives = 3;
     this.level = 1;
     this.score = 0;
@@ -56,7 +56,7 @@ class MainScene extends Phaser.Scene {
     this.physics.add.overlap(this.bullets, this.enemies, this.hitEnemy, null, this);
     this.physics.add.overlap(this.player, this.enemies, this.playerHit, null, this);
 
-    // 🔹 Botones táctiles
+    // 🔹 Crear controles táctiles
     this.createTouchControls();
   }
 
@@ -67,23 +67,23 @@ class MainScene extends Phaser.Scene {
     this.btnRight = this.add.image(180, screenHeight - 80, 'btnRight').setInteractive().setAlpha(0.6).setScrollFactor(0).setScale(1.5);
     this.btnShoot = this.add.image(this.sys.game.config.width - 80, screenHeight - 80, 'btnShoot').setInteractive().setAlpha(0.6).setScrollFactor(0).setScale(1.5);
 
-    // Estados de botones
+    // Estados de botones táctiles
     this.isMovingLeft = false;
     this.isMovingRight = false;
     this.isShooting = false;
 
-    // Eventos
+    // Eventos táctiles
     this.btnLeft.on('pointerdown', () => this.isMovingLeft = true);
     this.btnLeft.on('pointerup', () => this.isMovingLeft = false);
+    this.btnLeft.on('pointerout', () => this.isMovingLeft = false);
 
     this.btnRight.on('pointerdown', () => this.isMovingRight = true);
     this.btnRight.on('pointerup', () => this.isMovingRight = false);
+    this.btnRight.on('pointerout', () => this.isMovingRight = false);
 
-    this.btnShoot.on('pointerdown', () => {
-      this.isShooting = true;
-      this.shootBullet();
-    });
+    this.btnShoot.on('pointerdown', () => this.isShooting = true);
     this.btnShoot.on('pointerup', () => this.isShooting = false);
+    this.btnShoot.on('pointerout', () => this.isShooting = false);
   }
 
   spawnEnemy() {
@@ -148,7 +148,7 @@ class MainScene extends Phaser.Scene {
   update() {
     this.background.tilePositionY -= 2;
 
-    // Teclado
+    // Movimiento teclado + táctil
     if (this.cursors.left.isDown || this.isMovingLeft) {
       this.player.setVelocityX(-200);
     } else if (this.cursors.right.isDown || this.isMovingRight) {
@@ -157,15 +157,15 @@ class MainScene extends Phaser.Scene {
       this.player.setVelocityX(0);
     }
 
-    // Disparo con teclado
+    // Disparo teclado
     if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
       this.shootBullet();
     }
 
-    // Disparo táctil continuo
+    // Disparo táctil
     if (this.isShooting) {
       this.shootBullet();
-      this.isShooting = false; // para que no dispare infinitamente
+      this.isShooting = false; // dispara una vez por toque
     }
   }
 }
