@@ -1,22 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Juego Arcade</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Juego</title>
   <style>
     body {
       margin: 0;
-      background: black;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #111;
     }
+
     canvas {
-      display: block;
+      border: 2px solid white;
+      background: black;
+    }
+
+    /* Controles en móvil */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      gap: 20px;
+    }
+
+    button {
+      width: 60px;
+      height: 60px;
+      font-size: 22px;
+      border: none;
+      border-radius: 50%;
+      background: #444;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    }
+
+    button:active {
+      background: #666;
     }
   </style>
 </head>
 <body>
-  <script src="game.js"></script>
+  <!-- Aquí va tu juego -->
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+  <!-- Botones táctiles -->
+  <div class="controls">
+    <div class="row">
+      <button id="up">▲</button>
+    </div>
+    <div class="row">
+      <button id="left">◀</button>
+      <button id="down">▼</button>
+      <button id="right">▶</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // --- aquí sigue todo tu código del juego ---
+    // (esto no se toca, solo agregamos abajo los controles)
+
+    // Simular teclas con botones
+    const buttons = {
+      up: document.getElementById("up"),
+      down: document.getElementById("down"),
+      left: document.getElementById("left"),
+      right: document.getElementById("right")
+    };
+
+    function simulateKey(key) {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key }));
+    }
+
+    buttons.up.addEventListener("touchstart", () => simulateKey("ArrowUp"));
+    buttons.down.addEventListener("touchstart", () => simulateKey("ArrowDown"));
+    buttons.left.addEventListener("touchstart", () => simulateKey("ArrowLeft"));
+    buttons.right.addEventListener("touchstart", () => simulateKey("ArrowRight"));
+
+    // También con clics por si acaso
+    buttons.up.addEventListener("click", () => simulateKey("ArrowUp"));
+    buttons.down.addEventListener("click", () => simulateKey("ArrowDown"));
+    buttons.left.addEventListener("click", () => simulateKey("ArrowLeft"));
+    buttons.right.addEventListener("click", () => simulateKey("ArrowRight"));
+  </script>
 </body>
 </html>
+
+
 
